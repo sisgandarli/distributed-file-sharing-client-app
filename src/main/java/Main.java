@@ -4,8 +4,24 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+        String rootPath = "/my_app/";
+        String[] hosts = new String[]{
+            "ec2-34-214-221-30.us-west-2.compute.amazonaws.com:2181",
+            "ec2-34-215-107-90.us-west-2.compute.amazonaws.com:2181",
+            "ec2-34-215-123-215.us-west-2.compute.amazonaws.com:2181"
+        };
+        String connectionString = "";
+        for (int i = 0; i < hosts.length; i++) {
+            connectionString += hosts[i];
+            if (i != hosts.length - 1) {
+                connectionString += ",";
+            }
+        }
+
         Scanner in = new Scanner(System.in);
-        
+
+        Client client = new Client(connectionString);
+
         boolean isRunning = true;
         while (isRunning) {
             System.out.println("Choose your action: ");
@@ -15,14 +31,31 @@ public class Main {
             System.out.println("4. Append to a file;");
             System.out.println("5. Quit the program.");
             int action = in.nextInt();
+
+            String fileName = null;
             switch (action) {
                 case 1:
+                    System.out.println("Enter fileName: ");
+                    fileName = in.next();
+                    client.createFile(rootPath + fileName);
                     break;
                 case 2:
+                    System.out.println("Enter fileName: ");
+                    fileName = in.next();
+                    client.deleteFile(rootPath + fileName);
                     break;
                 case 3:
+                    System.out.println("Enter fileName: ");
+                    fileName = in.next();
+                    client.readFile(rootPath + fileName);
                     break;
                 case 4:
+                    System.out.println("Enter fileName: ");
+                    fileName = in.next();
+                    in.nextLine();
+                    System.out.println("Enter your text (line): ");
+                    String line = in.nextLine();
+                    client.appendToFile(rootPath + fileName, line);
                     break;
                 case 5:
                     isRunning = false;
@@ -31,6 +64,9 @@ public class Main {
                     System.out.println("The program did not understand your input.");
                     break;
             }
+            System.out.println();
         }
+
+        in.close();
     }
 }
