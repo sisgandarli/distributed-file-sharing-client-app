@@ -6,9 +6,9 @@ public class Main {
     public static void main(String[] args) {
         String rootPath = "/my_app/";
         String[] hosts = new String[]{
-            "ec2-34-214-221-30.us-west-2.compute.amazonaws.com:2181",
-            "ec2-34-215-107-90.us-west-2.compute.amazonaws.com:2181",
-            "ec2-34-215-123-215.us-west-2.compute.amazonaws.com:2181"
+            "ec2-34-213-109-55.us-west-2.compute.amazonaws.com:2181",
+            "ec2-34-213-109-55.us-west-2.compute.amazonaws.com:2181",
+            "ec2-52-88-161-170.us-west-2.compute.amazonaws.com:2181"
         };
         String connectionString = "";
         for (int i = 0; i < hosts.length; i++) {
