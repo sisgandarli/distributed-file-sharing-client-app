@@ -1,4 +1,5 @@
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -6,9 +7,9 @@ public class Main {
     public static void main(String[] args) {
         String rootPath = "/my_app/";
         String[] hosts = new String[]{
-            "ec2-34-213-109-55.us-west-2.compute.amazonaws.com:2181",
-            "ec2-34-213-109-55.us-west-2.compute.amazonaws.com:2181",
-            "ec2-52-88-161-170.us-west-2.compute.amazonaws.com:2181"
+            "ec2-35-165-154-143.us-west-2.compute.amazonaws.com:2181",
+            "ec2-34-210-203-81.us-west-2.compute.amazonaws.com:2181",
+            "ec2-52-33-43-237.us-west-2.compute.amazonaws.com:2181"
         };
         String connectionString = "";
         for (int i = 0; i < hosts.length; i++) {
@@ -25,15 +26,27 @@ public class Main {
         boolean isRunning = true;
         while (isRunning) {
             System.out.println("Choose your action: ");
+            System.out.println("0. List file names;");
             System.out.println("1. Create a file;");
             System.out.println("2. Delete a file;");
             System.out.println("3. Read a file;");
             System.out.println("4. Append to a file;");
             System.out.println("5. Quit the program.");
-            int action = in.nextInt();
+
+            String operation = in.next();
+            int action = -1;
+            try {
+                action = Integer.parseInt(operation);
+            } catch (Exception e) {
+                System.out.println("Please, enter a number.");
+                continue;
+            }
 
             String fileName = null;
             switch (action) {
+                case 0:
+                    client.listFiles();
+                    break;
                 case 1:
                     System.out.println("Enter fileName: ");
                     fileName = in.next();
