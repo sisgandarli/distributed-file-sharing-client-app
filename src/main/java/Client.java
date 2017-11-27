@@ -1,10 +1,12 @@
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
@@ -15,12 +17,23 @@ public class Client {
     private ZooKeeper zk;
     private Watcher watcher;
     private int sessionTimeout = 2000;
+    private CountDownLatch latch = new CountDownLatch(1);
 
     public Client(String hosts) {
         try {
-            watcher = null;
+            watcher = new Watcher() {
+                @Override
+                public void process(WatchedEvent event) {
+                    if (event.getState() == Event.KeeperState.SyncConnected) {
+                        latch.countDown();
+                    }
+                }
+            };
             zk = new ZooKeeper(hosts, sessionTimeout, watcher);
+            latch.await();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
