@@ -99,7 +99,11 @@ public class Client {
                     byte[] data = zk.getData(fileName, true, zk.exists(fileName, true));
                     String dataString = new String(data);
                     System.out.printf("Reading the \"%s\" file...\n", fileName);
-                    System.out.println(dataString);
+                    if (dataString.length() == 0) {
+                        System.out.printf("The file (\"%s\") is empty.\n", fileName);
+                    } else {
+                        System.out.println(dataString);
+                    }
                 }
             } catch (KeeperException e) {
                 e.printStackTrace();
