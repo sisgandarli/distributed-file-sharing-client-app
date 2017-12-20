@@ -5,8 +5,10 @@ public class Main {
 
     public static void main(String[] args) {
         String rootPath = "/my_app/";
+        
+        /*
         String[] hosts = new String[]{
-            "ec2-35-163-111-171.us-west-2.compute.amazonaws.com:2181",
+            "ec2-34-215-170-198.us-west-2.compute.amazonaws.com:2181",
             "ec2-52-34-108-127.us-west-2.compute.amazonaws.com:2181",
             "ec2-35-166-55-216.us-west-2.compute.amazonaws.com:2181"
         };
@@ -17,9 +19,20 @@ public class Main {
                 connectionString += ",";
             }
         }
+        */
 
         Scanner in = new Scanner(System.in);
-
+        
+        String connectionString = "";
+        String inputHosts = in.nextLine();
+        String[] hosts = inputHosts.split("\\s+");
+        for (int i = 0; i < hosts.length; i++) {
+            connectionString += hosts[i] + ":2181";
+            if (i != hosts.length - 1) {
+                connectionString += ",";
+            }
+        }
+        
         Client client = new Client(connectionString);
 
         boolean isRunning = true;
