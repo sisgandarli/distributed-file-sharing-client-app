@@ -143,7 +143,7 @@ public class Client {
                     if (previousDataString.trim().equals("")) {
                         newDataString = line;
                     } else {
-                        newDataString = previousDataString + line;
+                        newDataString = previousDataString + "\n" + line;
                     }
                     zk.setData(fileName, newDataString.getBytes(), zk.exists(fileName, true).getVersion());
                     System.out.printf("The line \"%s\" was appended to \"%s\" file", line, fileName);
