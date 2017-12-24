@@ -3,25 +3,12 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
-        String rootPath = "/my_app/";
+    public static void main(String[] args) {       
+        String rootPath = "/";
         
-        /*
-        String[] hosts = new String[]{
-            "ec2-34-215-170-198.us-west-2.compute.amazonaws.com:2181",
-            "ec2-52-34-108-127.us-west-2.compute.amazonaws.com:2181",
-            "ec2-35-166-55-216.us-west-2.compute.amazonaws.com:2181"
-        };
-        String connectionString = "";
-        for (int i = 0; i < hosts.length; i++) {
-            connectionString += hosts[i];
-            if (i != hosts.length - 1) {
-                connectionString += ",";
-            }
-        }
-        */
-
         Scanner in = new Scanner(System.in);
+        
+        System.out.println("Which server(s) would you like to connect to (separate them by space)?");
         
         String connectionString = "";
         String inputHosts = in.nextLine();
@@ -37,6 +24,9 @@ public class Main {
 
         boolean isRunning = true;
         while (isRunning) {
+            if (!client.isConnected()) {
+                client.sendClosedSessionMessage();
+            }
             System.out.println("Choose your action: ");
             System.out.println("0. List file names;");
             System.out.println("1. Create a file;");
@@ -46,6 +36,11 @@ public class Main {
             System.out.println("5. Quit the program.");
 
             String operation = in.next();
+            
+            if (operation.equals("exit")) {
+                break;
+            }
+            
             int action = -1;
             try {
                 action = Integer.parseInt(operation);
@@ -78,6 +73,9 @@ public class Main {
                     System.out.println("Enter fileName: ");
                     fileName = in.next();
                     in.nextLine();
+                    if (!client.fileExists(rootPath + fileName)) {
+                        break;
+                    }
                     System.out.println("Enter your text (line): ");
                     String line = in.nextLine();
                     client.appendToFile(rootPath + fileName, line);

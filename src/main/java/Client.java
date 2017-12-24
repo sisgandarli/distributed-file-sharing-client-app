@@ -2,21 +2,22 @@
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
 public class Client {
 
     private ZooKeeper zk;
     private Watcher watcher;
-    private int sessionTimeout = 2000;
+    private int sessionTimeout = 5000;
     private CountDownLatch latch = new CountDownLatch(1);
 
     public Client(String hosts) {
@@ -30,24 +31,31 @@ public class Client {
                 }
             };
             zk = new ZooKeeper(hosts, sessionTimeout, watcher);
-            latch.await();
+            latch.await(5, TimeUnit.SECONDS);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            sendClosedSessionMessage();
         }
     }
-
+    
+    public boolean isConnected() {
+        return (zk.getState() == States.CONNECTED);
+    }
+    
     public void listFiles() {
-        if (zk != null) {
+        if (!isZkNull()) {
             try {
-                List<String> fileNames = zk.getChildren("/my_app", true);
+                List<String> fileNames = zk.getChildren("/", true);
                 System.out.println("Listing the file names...");
                 System.out.printf("Total #files: %d\n", fileNames.size());
                 for (String i : fileNames) {
                     System.out.println(i);
                 }
             } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -56,7 +64,7 @@ public class Client {
     }
 
     public void createFile(String fileName) {
-        if (zk != null) {
+        if (!isZkNull()) {
             try {
                 if (zk.exists(fileName, true) == null) {
                     zk.create(fileName, "".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -67,13 +75,16 @@ public class Client {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
                 e.printStackTrace();
             }
         }
     }
 
     public void deleteFile(String fileName) {
-        if (zk != null) {
+        if (!isZkNull()) {
             try {
                 Stat stat = zk.exists(fileName, true);
                 if (stat == null) {
@@ -83,6 +94,9 @@ public class Client {
                     System.out.printf("The \"%s\" was was deleted.\n", fileName);
                 }
             } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -91,7 +105,7 @@ public class Client {
     }
 
     public void readFile(String fileName) {
-        if (zk != null) {
+        if (!isZkNull()) {
             try {
                 if (zk.exists(fileName, true) == null) {
                     System.out.printf("The following file (\"%s\") does not exist in the file system.\n", fileName);
@@ -106,6 +120,9 @@ public class Client {
                     }
                 }
             } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -114,7 +131,7 @@ public class Client {
     }
 
     public void appendToFile(String fileName, String line) {
-        if (zk != null) {
+        if (!isZkNull()) {
             try {
                 if (zk.exists(fileName, true) == null) {
                     System.out.printf("The following file (\"%s\") does not exist in the file system.\n", fileName);
@@ -131,10 +148,44 @@ public class Client {
                     System.out.printf("The line \"%s\" was appended to \"%s\" file", line, fileName);
                 }
             } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean fileExists(String fileName) {
+        if (!isZkNull()) {
+            try {
+                if (zk.exists(fileName, true) != null) {
+                    return true;
+                } else {
+                    System.out.printf("The following file (\"%s\") does not exist in the file system.\n", fileName);
+                    return false;
+                }
+            } catch (KeeperException e) {
+                if (e.code() == Code.CONNECTIONLOSS) {
+                    sendClosedSessionMessage();
+                }
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+    
+    public void sendClosedSessionMessage() {
+        System.out.println("The connection to the server(s) was lost");
+        System.out.println("Closing the session...");
+        System.exit(0);
+    }
+
+    private boolean isZkNull() {
+        return this.zk == null;
     }
 }
