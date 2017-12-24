@@ -92,7 +92,7 @@ public class Client {
                     System.out.printf("The following file (\"%s\") does not exist in the file system.\n", fileName);
                 } else {
                     zk.delete(fileName, stat.getVersion());
-                    System.out.printf("The \"%s\" was was deleted.\n", fileName);
+                    System.out.printf("The \"%s\" was deleted.\n", fileName);
                 }
             } catch (KeeperException e) {
                 if (e.code() == Code.CONNECTIONLOSS) {
