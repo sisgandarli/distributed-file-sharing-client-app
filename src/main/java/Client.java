@@ -52,6 +52,7 @@ public class Client {
                 for (String i : fileNames) {
                     System.out.println(i);
                 }
+                System.out.println();
             } catch (KeeperException e) {
                 if (e.code() == Code.CONNECTIONLOSS) {
                     sendClosedSessionMessage();
@@ -142,7 +143,7 @@ public class Client {
                     if (previousDataString.trim().equals("")) {
                         newDataString = line;
                     } else {
-                        newDataString = previousDataString + "\n" + line;
+                        newDataString = previousDataString + line;
                     }
                     zk.setData(fileName, newDataString.getBytes(), zk.exists(fileName, true).getVersion());
                     System.out.printf("The line \"%s\" was appended to \"%s\" file", line, fileName);
