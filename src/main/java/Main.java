@@ -30,67 +30,71 @@ public class Main {
             client.listFiles();
 
             System.out.println("Choose your action:");
-            System.out.println("1. Create a file.     Command: 1 [file_name]");
-            System.out.println("2. Delete a file.     Command: 2 [file_name]");
-            System.out.println("3. Read a file.       Command: 3 [file_name]");
-            System.out.println("4. Append to a file.  Command: 4 [file_name] [line]");
-            System.out.println("5. Quit the program.  Command: 5");
+            System.out.println("Create a file.     Command: create [file_name]");
+            System.out.println("Delete a file.     Command: delete [file_name]");
+            System.out.println("Read a file.       Command: read   [file_name]");
+            System.out.println("Append to a file.  Command: append [file_name] [line]");
+            System.out.println("Quit the program.  Command: exit");
             System.out.println("Enter your command:");
             String operation = in.nextLine();
 
             String[] myArgs = operation.split("\\s+");
 
-            if (myArgs[0].equals("exit")) {
-                break;
-            } else {
-                try {
-                    int action = Integer.parseInt(myArgs[0]);
-                    String fileName = null;
-                    switch (action) {
-                        case 1:
-                            if (myArgs.length >= 2) {
-                                fileName = myArgs[1];
-                                client.createFile(rootPath + fileName);
+            try {
+                String action = myArgs[0];
+                String fileName = null;
+                switch (action) {
+                    case "create":
+                        if (myArgs.length >= 2) {
+                            fileName = myArgs[1];
+                            client.createFile(rootPath + fileName);
+                        } else {
+                            System.out.println("Your command is not complete.");
+                        }
+                        break;
+                    case "delete":
+                        if (myArgs.length >= 2) {
+                            fileName = myArgs[1];
+                            client.deleteFile(rootPath + fileName);
+                        } else {
+                            System.out.println("Your command is not complete.");
+                        }
+                        break;
+                    case "read":
+                        if (myArgs.length >= 2) {
+                            fileName = myArgs[1];
+                            client.readFile(rootPath + fileName);
+                        } else {
+                            System.out.println("Your command is not complete.");
+                        }
+                        break;
+                    case "append":
+                        if (myArgs.length >= 3) {
+                            fileName = myArgs[1];
+                            if (!client.fileExists(rootPath + fileName)) {
+                                break;
                             }
-                            break;
-                        case 2:
-                            if (myArgs.length >= 2) {
-                                fileName = myArgs[1];
-                                client.deleteFile(rootPath + fileName);
+                            StringBuilder line = new StringBuilder();
+                            for (int i = 2; i < myArgs.length; i++) {
+                                line.append(myArgs[i] + " ");
                             }
-                            break;
-                        case 3:
-                            if (myArgs.length >= 2) {
-                                fileName = myArgs[1];
-                                client.readFile(rootPath + fileName);
-                            }
-                            break;
-                        case 4:
-                            if (myArgs.length >= 3) {
-                                fileName = myArgs[1];
-                                if (!client.fileExists(rootPath + fileName)) {
-                                    break;
-                                }
-                                StringBuilder line = new StringBuilder();
-                                for (int i = 2; i < myArgs.length; i++) {
-                                    line.append(myArgs[i] + " ");
-                                }
-                                client.appendToFile(rootPath + fileName, line.toString().trim());
-                            }
-                            break;
-                        case 5:
-                            isRunning = false;
-                            break;
-                        default:
-                            System.out.println("The program did not understand your input.");
-                            break;
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Please, enter a number.");
-                    continue;
+                            client.appendToFile(rootPath + fileName, line.toString().trim());
+                        } else {
+                            System.out.println("Your command is not complete.");
+                        }
+                        break;
+                    case "exit":
+                        isRunning = false;
+                        break;
+                    default:
+                        System.out.println("The program did not understand your input.");
+                        break;
                 }
-                System.out.println();
+            } catch (NumberFormatException e) {
+                System.out.println("Please, enter a number.");
+                continue;
             }
+            System.out.println();
         }
 
         in.close();
