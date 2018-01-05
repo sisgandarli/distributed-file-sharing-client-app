@@ -1,2 +1,2 @@
 # DistributedFileSharingClientApp
-A client for a distributed file sharing system. Created using Apache Zookeeper Java API.
+A client for a distributed file sharing system. Created using Apache ZooKeeper Java API.
