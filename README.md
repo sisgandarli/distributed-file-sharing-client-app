@@ -1,2 +1,2 @@
-# DistributedApp
-A distributed file sharing application using Apache Zookeeper
+# DistributedFileSharingSystem
+A client for distributed file sharing system using Apache Zookeeper Java API
